@@ -1,0 +1,7 @@
+flask
+spotipy
+openai=0.28
+python-dotenv
+sqlalchemy
+pymysql
+pyjwt
