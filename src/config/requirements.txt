@@ -1,7 +1,6 @@
 flask
 spotipy
-openai=0.28
+openai
 python-dotenv
-sqlalchemy
 pymysql
 pyjwt

@@ -1,40 +1,24 @@
-import sys
+from dotenv import load_dotenv
 import requests
+import openai
 import json
+import os
 
-CLINET_ID = "afqcfylarl"
-CLINET_SECRET = "D9bFrNKjZS0iIPlGrfBi4QqHmztX8oQCtf0Hugey"
-URL = 'https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize'
+load_dotenv(dotenv_path="./config/.env")
 
-headers = {
-    'Accept': 'application/json;UTF-8', 
-    'Content-Type': 'application/json;UTF-8', 
-    'X-NCP-APIGW-API-KEY-ID': CLINET_ID, 
-    'X-NCP-APIGW-API-KEY': CLINET_SECRET
-}
+GPT_KEY = os.environ.get('GPT_KEY')
 
-def get_completion(text):
-    data = {
-        "document": {"content": text}, 
-        "option": {
-            "language": "ko", 
-            "model": "news", 
-            "tone": 2, 
-            "summaryCount": 3
-        }
-    }
+openai.api_key = GPT_KEY
 
-    response = requests.post(URL, headers=headers, data=json.dumps(data).encode('UTF-8'))
-    rescode = response.status_code
-    if rescode == 200:
-        print(response.text)
-    else:
-        print("Error : " + response.text)
+def get_completion(prompt):
+    message = [
+        {"role": "system", "content": "사용자의 입력에서 중심적인 테마와 개념을 추출하여 추상적인 아이디어나 감정을 전달하는 키워드나 문구로 반환하세요."},
+        {"role": "user", "content": prompt}
+    ]
 
-def get_keyword(search_query):
-    text = f"{search_query} 이 감정의 무드의 단어를 한개 만들어줘."
-    get_completion(text)
-
-if __name__ == '__main__':
-    search_query = input("키워드를 입력하세요: ")
-    get_keyword(search_query)
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=message,
+        temperature=1,
+    )
+    return response.choices[0].message["content"]

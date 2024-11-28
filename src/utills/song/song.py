@@ -12,7 +12,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 REDIRECT_URI = os.environ.get('REDIRECT_URI')
 
 def get_music(search_query):
-
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID, client_secret=SECRET_KEY, redirect_uri=REDIRECT_URI))
     result = sp.search(f'{search_query}', limit=50, type='track')
     
@@ -37,4 +36,4 @@ def result_music(playlist):
         }
         return music_body
     else:
-        return "error"
+        return None

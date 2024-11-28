@@ -9,8 +9,8 @@ import utills.database.user as user
 import utills.database.music as music
 import utills.database.note as note
 import utills.database.mission as mission
-import backend.utills.song.song as song
-import utills.keyword.keyword as keyword
+import utills.song.song as song
+import utills.keyword.keyword as keywords
 import utills.jwt.jwts as jwts
 
 app = Flask(__name__)
@@ -116,22 +116,42 @@ def refresh_tokens():
 @app.route('/api/music/recommend', methods=['POST'])
 def recommend():
     try:
-        data = json.loads(request.data.decode('cp949'))
-        keyword = data.get("keyword")
+        data = request.json
+        auth_header = request.headers.get('Authorization')
+        email = data.get('email')
+        content = data.get('content')
+
+
+        if not auth_header:
+            return jsonify({"msg": "Authorization header is missing"}), 400
+
+        if not email:
+            return jsonify({"msg": "Email is Required"}), 400
+
+        if not content:
+            return jsonify({"msg": "Content is required"}), 400
+        
+        auth_token = token_parsing(auth_header, email)
+
+        if not auth_token["valid"]:
+            return jsonify({"msg": "Invalid Token"}), 400
+        
+        keyword = keywords.get_completion(content)
 
         if not keyword:
-            return jsonify({"error": "Keyword Not Found"}), 404
-    except json.JSONDecodeError as e:
-        return jsonify({'error': f'JSON Parsing Error: {str(e)}'}), 400
-    except Exception as e:
-        return jsonify({'error': f'Error: {str(e)}'}), 400
-     
-    playlist = song.get_music(keyword)
+            return jsonify({"msg": "Keyword is required"}), 400
 
-    if "error" in playlist:
-        return jsonify(playlist), 404
-    else:
-        return jsonify(playlist), 200
+        result = song.get_music(keyword)
+
+        if not result:
+            return jsonify({"msg": "Failed to select music"}), 400
+
+        return jsonify({"msg": "Select music successfully", "data": result}), 200
+    except json.JSONDecodeError as e:
+        return jsonify({'error': f'JSON parsing error: {str(e)}'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Error: {str(e)}'}), 500
+
 
 @app.route('/api/mission/selectmission', methods=['POST'])
 def select_mission():
