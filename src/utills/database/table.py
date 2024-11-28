@@ -11,7 +11,6 @@ MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD')
 MYSQL_HOST = os.environ.get('MYSQL_HOST')
 MYSQL_PORT = int(os.environ.get('MYSQL_PORT', 3306))
 MYSQL_DBNAME = os.environ.get('MYSQL_DBNAME')
-MISSION_FILE_PATH = os.environ.get('MISSION_FILE_PATH', './config/mission.json')
 
 def get_db_connection():
     conn = pymysql.connect(
@@ -77,10 +76,10 @@ def create_table():
 
 def insert_missions():
     try:
-        with open(MISSION_FILE_PATH, "r", encoding="utf-8") as file:
+        with open("./config/mission.json", "r", encoding="utf-8") as file:
             data = json.load(file)
     except FileNotFoundError:
-        logging.error(f"Mission file not found at: {MISSION_FILE_PATH}")
+        logging.error("Mission file not found at mission.json")
         return
     except json.JSONDecodeError:
         logging.error("Error decoding JSON from mission file.")
