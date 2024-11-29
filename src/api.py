@@ -25,24 +25,28 @@ def add_user():
     try:
         data = request.json
         email = data.get('email')
-        nicname = data.get('nicname')
+        name = data.get('name')
         password = data.get('password')
 
         if not email:
             return jsonify({"msg": "Email is Required"}), 400
         
-        if not nicname:
-            return jsonify({"msg": "Nicname is Required"}), 400
+        if not name:
+            return jsonify({"msg": "Name is Required"}), 400
         
         if not password:
             return jsonify({"msg": "Password is Required"}), 400
 
-        add_user = user.add_user(email, nicname, password)
+        result = user.add_user(email, name, password)
+
+        if not result:
+            return jsonify({"msg": "User already exists"}), 400
 
         return jsonify({"msg": "User Added Successfully"}), 200
     except Exception as e:
         logging.error(f"Error occurred: {e}")
         return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
+
 
 @app.route('/api/user/signin', methods=['POST'])
 def login_user():

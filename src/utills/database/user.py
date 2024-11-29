@@ -52,12 +52,19 @@ def setting_db(message, params=None, fetch=False):
         cursor.close()
         conn.close()
 
-def add_user(email, nicname, password):
-    message = f"INSERT INTO {MYSQL_DBNAME}.users (email, nicname, password) VALUES (%s, %s, %s)"
+def add_user(email, name, password):
+    create_message = f"INSERT INTO {MYSQL_DBNAME}.users (email, name, password) VALUES (%s, %s, %s)"
+    select_message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
+    
+    existing_user = setting_db(select_message, params=(email,))
+    if existing_user:
+        return None
+    
     password = hash_password(password)
-    setting_db(message, params=(email, nicname, password))
+    setting_db(create_message, params=(email, name, password))
     
     return {"msg": "User added successfully"}
+
 
 def login_user(email, password):
     message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
