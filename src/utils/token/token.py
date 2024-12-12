@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import datetime
 import jwt
 import os
-import json
 
 load_dotenv(dotenv_path="./config/.env")
 
@@ -14,7 +13,7 @@ def create_tokens(email):
     access_payload = {
         "email": email,
         'iat': kst_now,
-        'exp': kst_now + datetime.timedelta(minutes=15),
+        'exp': kst_now + datetime.timedelta(minutes=30),
     }
     refresh_payload = {
         "email": email,
@@ -40,7 +39,9 @@ def verify_access_token(token, requested_email):
             return {"valid": False, "msg": "Email does not match the token"}
 
         kst_now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
-        if datetime.datetime.fromtimestamp(exp, datetime.timezone.utc) < kst_now:
+        exp_time = datetime.datetime.fromtimestamp(exp, tz=datetime.timezone(datetime.timedelta(hours=9)))  # KST로 처리
+
+        if exp_time < kst_now:
             return {"valid": False, "msg": "Token has expired"}
         
         return {"valid": True, "email": token_email}
@@ -49,7 +50,6 @@ def verify_access_token(token, requested_email):
         return {"valid": False, "msg": "Token has expired"}
     except jwt.InvalidTokenError:
         return {"valid": False, "msg": "Invalid token"}
-
 
 def refresh_access_token(refresh_token):
     try:

@@ -38,28 +38,11 @@ def setting_db(message, params=None, fetch=False):
             conn.commit()
     except Exception as e:
         logging.error(f"Error occurred: {e}")
-        raise
     finally:
         cursor.close()
         conn.close()
 
-def create_note(title, content, mood, year, month, day):
-    message = f"INSERT INTO {MYSQL_DBNAME}.notes (title, content, mood, year, month, day) VALUES (%s, %s, %s, %s, %s, %s)"
-    setting_db(message, params=(title, content, mood, year, month, day))
-    
-    return {"msg": "Note created successfully"}
-
-def modify_note(title, content, mood, year, month, day):
-    message = f"UPDATE {MYSQL_DBNAME}.notes SET title = %s, content = %s, mood = %s WHERE year = %s AND month = %s AND day = %s"
-    setting_db(message, params=(title, content, mood, year, month, day))
-    
-    return {"msg": "Note modified successfully"}
-
-def select_note(title, year, month, day):
-    message = f"SELECT * FROM {MYSQL_DBNAME}.notes WHERE title = %s AND year = %s AND month = %s AND day = %s"
-    result = setting_db(message, params=(title, year, month, day), fetch=True)
-    
-    if result:
-        return result
-    else:
-        return None
+def select_mission(id):
+    message = f"SELECT * FROM {MYSQL_DBNAME}.missions WHERE mission_id = %s"
+    result = setting_db(message, params=(id,), fetch=True)
+    return result[0][2]

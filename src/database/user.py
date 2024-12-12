@@ -3,10 +3,9 @@ import pymysql
 import logging
 import hashlib
 import base64
-import jwt
 import os
 
-import utills.jwt.jwts as jwts
+import utils.token.token as token
 
 load_dotenv(dotenv_path="./config/.env")
 
@@ -32,7 +31,7 @@ def get_db_connection():
     )
     return conn
 
-def setting_db(message, params=None, fetch=False):
+def setting_db(message, params=False, fetch=False):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -52,26 +51,27 @@ def setting_db(message, params=None, fetch=False):
         cursor.close()
         conn.close()
 
+
 def add_user(email, name, password):
     create_message = f"INSERT INTO {MYSQL_DBNAME}.users (email, name, password) VALUES (%s, %s, %s)"
     select_message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
     
-    existing_user = setting_db(select_message, params=(email,))
+    existing_user = setting_db(select_message, params=(email,), fetch=True)
     if existing_user:
-        return None
+        return False
     
     password = hash_password(password)
     setting_db(create_message, params=(email, name, password))
     
-    return {"msg": "User added successfully"}
+    return True
 
 
 def login_user(email, password):
-    message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
-    result = setting_db(message, params=(email,), fetch=True)
+    select_message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
+    result = setting_db(select_message, params=(email,), fetch=True)
 
     if result:
-        stored_password = result[0][2]
+        stored_password = result[0][3]
         stored_password_bytes = base64.b64decode(stored_password)
         salt = stored_password_bytes[:16]
         hashed_password = stored_password_bytes[16:].decode('utf-8')
@@ -79,26 +79,25 @@ def login_user(email, password):
         hashed_input_password = hashlib.sha512(salt + password.encode('utf-8')).hexdigest()
 
         if hashed_password == hashed_input_password:
-            access_token, refresh_token = jwts.create_tokens(email)
+            access_token, refresh_token = token.create_tokens(email)
             if access_token and refresh_token:
                 return access_token, refresh_token
             else:
-                return None, None
+                return False, False
         else:
-            return None, None
+            return False, False
     else:
-        return None, None
+        return False, False
 
 def change_password(email, current_password, new_password, confirm_password):
     if new_password != confirm_password:
-        message = {"msg": "New password and re-entered password do not match"}, 400
-        return message
+        return False
 
     message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
     result = setting_db(message, params=(email,), fetch=True)
 
     if result:
-        stored_password = result[0][2]
+        stored_password = result[0][3]
 
         stored_password_bytes = base64.b64decode(stored_password)
         salt = stored_password_bytes[:16]
@@ -111,9 +110,14 @@ def change_password(email, current_password, new_password, confirm_password):
             update_message = f"UPDATE {MYSQL_DBNAME}.users SET password = %s WHERE email = %s"
             setting_db(update_message, params=(new_hashed_password, email))
 
-            message = {"msg": "Password changed successfully"}
-            return message
+            return True
         else:
-            return None
+            return False
     else:
-        return None
+        return False
+
+def select_user_email(user_id):
+    message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE user_id = %s"
+    result = setting_db(message, params=(user_id), fetch=True)
+
+    return result[0][1]

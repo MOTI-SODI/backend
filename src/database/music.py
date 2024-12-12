@@ -24,7 +24,7 @@ def get_db_connection():
 
 def setting_db(message, params=None, fetch=False):
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
     try:
         if params:
             cursor.execute(message, params)
@@ -38,18 +38,17 @@ def setting_db(message, params=None, fetch=False):
             conn.commit()
     except Exception as e:
         logging.error(f"Error occurred: {e}")
+        raise
     finally:
         cursor.close()
         conn.close()
 
-def create_music(thumbnail, song_title, artist, year, month, day):
-    message = f"INSERT INTO {MYSQL_DBNAME}.musics (thumbnail, song_title, artist, year, month, day) VALUES (%s, %s, %s, %s, %s, %s)"
-    setting_db(message, params=(thumbnail, song_title, artist, year, month, day))
-    
+def create_music(thumbnail, song_title, artist, date, email):
+    message = f"INSERT INTO {MYSQL_DBNAME}.musics (thumbnail, song_title, artist, date, email) VALUES (%s, %s, %s, %s, %s)"
+    setting_db(message, params=(thumbnail, song_title, artist, date, email))
     return {"msg": "Create Song Successfully"}
 
-def select_music(year, month):
-    message = f"SELECT * FROM {MYSQL_DBNAME}.musics WHERE year = %s AND month = %s"
-    result = setting_db(message, params=(year, month), fetch=True)
-
+def select_music(email, year, month):
+    message = f"SELECT id, thumbnail, song_title, artist, DATE_FORMAT(date, '%Y-%m-%d') as date FROM {MYSQL_DBNAME}.musics WHERE email = %s AND YEAR(date) = %s AND MONTH(date) = %s"
+    result = setting_db(message, params=(email, year, month), fetch=True)
     return result

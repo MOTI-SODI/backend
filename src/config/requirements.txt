@@ -4,3 +4,6 @@ openai
 python-dotenv
 pymysql
 pyjwt
+# oauth2client
+google-auth
+google-auth-oauthlib
