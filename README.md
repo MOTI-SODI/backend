@@ -17,3 +17,4 @@
 |/api/calendar/year|달력 년 조회|
 |/api/calendar/month|달력 월 조회|
 |/api/calendar/day|달력 일 조회|
+|/api/healthcheck|상태 체크|
