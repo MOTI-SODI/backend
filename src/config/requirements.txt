@@ -1,9 +1,7 @@
 flask
-spotipy
-openai
+flask-cors
 python-dotenv
+spotipy
 pymysql
 pyjwt
-# oauth2client
-google-auth
-google-auth-oauthlib
+google-generativeai
