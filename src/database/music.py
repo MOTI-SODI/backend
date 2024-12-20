@@ -43,12 +43,17 @@ def setting_db(message, params=None, fetch=False):
         cursor.close()
         conn.close()
 
-def create_music(thumbnail, song_title, artist, date, email):
-    message = f"INSERT INTO {MYSQL_DBNAME}.musics (thumbnail, song_title, artist, date, email) VALUES (%s, %s, %s, %s, %s)"
-    setting_db(message, params=(thumbnail, song_title, artist, date, email))
-    return {"msg": "Create Song Successfully"}
+def create_music(user_id, artist, song_title, thumbnail, music_url, date):
+    create_message = f"INSERT INTO {MYSQL_DBNAME}.musics (user_id, artist, song_title, thumbnail, music_url, date) VALUES (%s, %s, %s, %s, %s, %s)"
+    setting_db(create_message, params=(user_id, artist, song_title, thumbnail, music_url, date))
+    
+    return True
 
-def select_music(email, year, month):
-    message = f"SELECT id, thumbnail, song_title, artist, DATE_FORMAT(date, '%Y-%m-%d') as date FROM {MYSQL_DBNAME}.musics WHERE email = %s AND YEAR(date) = %s AND MONTH(date) = %s"
-    result = setting_db(message, params=(email, year, month), fetch=True)
-    return result
+def select_music(user_id, date):
+    select_message = f"SELECT * FROM {MYSQL_DBNAME}.musics WHERE user_id = %s AND date = %s"
+    result = setting_db(select_message, params=(user_id, date), fetch=True)
+    
+    if result:
+        return result
+    else:
+        return None

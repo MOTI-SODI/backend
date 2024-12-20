@@ -20,7 +20,7 @@ def get_music(search_query):
         track_info = {
             'artist': random_track['artists'][0]['name'],
             'title': random_track['name'],
-            'url': random_track['external_urls']['spotify'],
+            'music_url': random_track['external_urls']['spotify'],
             'thumbnail': random_track['album']['images'][0]['url']
         }
         return result_music(track_info)
@@ -32,7 +32,8 @@ def result_music(playlist):
         music_body = {
             "thumbnail": playlist['thumbnail'],
             "song_title": f"{playlist['artist']} - {playlist['title']}",
-            "artist": playlist['artist']
+            "artist": playlist['artist'],
+            "music_url": playlist['music_url']
         }
         return music_body
     else:

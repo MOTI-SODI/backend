@@ -107,6 +107,7 @@ def create_table():
         thumbnail VARCHAR(255) NOT NULL,
         song_title VARCHAR(255) NOT NULL,
         artist VARCHAR(255) NOT NULL,
+        music_url VARCHAR(255) NOT NULL,
         date DATE NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     );

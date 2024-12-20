@@ -19,4 +19,5 @@ def generate_keyword(content):
         )
     )
 
-    return response.text
+    response_text = response.text.replace("\n", "").strip()
+    return response_text
