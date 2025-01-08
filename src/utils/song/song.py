@@ -2,7 +2,6 @@ from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 import spotipy
 import random
-import json
 import os
 
 load_dotenv(dotenv_path="./config/.env")
@@ -23,18 +22,16 @@ def get_music(search_query):
             'music_url': random_track['external_urls']['spotify'],
             'thumbnail': random_track['album']['images'][0]['url']
         }
+        print(track_info)
         return result_music(track_info)
     else:
-        return result_music(None)
+        return None
     
 def result_music(playlist):
-    if playlist:
-        music_body = {
-            "thumbnail": playlist['thumbnail'],
-            "song_title": f"{playlist['artist']} - {playlist['title']}",
-            "artist": playlist['artist'],
-            "music_url": playlist['music_url']
-        }
-        return music_body
-    else:
-        return None
+    music_body = {
+        "thumbnail": playlist['thumbnail'],
+        "song_title": f"{playlist['artist']} - {playlist['title']}",
+        "artist": playlist['artist'],
+        "music_url": playlist['music_url']
+    }
+    return music_body

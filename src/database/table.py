@@ -73,7 +73,12 @@ def create_table():
         user_id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) NOT NULL,
         name VARCHAR(255) NOT NULL,
-        password VARCHAR(255) NOT NULL
+        password VARCHAR(255) NOT NULL,
+        birth_date DATE NOT NULL,
+        phone_address VARCHAR(255) NOT NULL,
+        gender ENUM('F','M') NOT NULL,
+        job VARCHAR(255) NOT NULL
+        status BOOLEAN,
     );
     """
 
@@ -113,6 +118,20 @@ def create_table():
     );
     """
 
+    inspection_table_query = """
+    CREATE TABLE IF NOT EXISTS inspections (
+        inspection_id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        emotionality INT NOT NULL,
+        extraversion INT NOT NULL,
+        agreeableness INT NOT NULL,
+        honesty INT NOT NULL,
+        conscientiousness INT NOT NULL,
+        open INT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    );
+    """
+
     mission_table_query = """
     CREATE TABLE IF NOT EXISTS missions (
         mission_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -124,6 +143,7 @@ def create_table():
     setting_db(note_table_query)
     setting_db(calendar_table_query)
     setting_db(music_table_query)
+    setting_db(inspection_table_query)
     setting_db(mission_table_query)
 
     insert_missions()

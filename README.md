@@ -5,6 +5,9 @@
 |/api/user/signup|회원가입|
 |/api/user/signin|유저 로그인|
 |/api/user/password|비밀번호 재설정|
+|/api/user/name|이름 재설정|
+|/api/user/gender|성별 재설정|
+|/api/user/job|직업 재설정|
 |/api/token/refresh|Access Token 재발급|
 |/api/mission/mission|미션 추천|
 |/api/note/createnote|노트 생성|

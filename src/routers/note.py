@@ -3,6 +3,7 @@ import logging
 
 import database.user as user
 import database.note as note
+import database.inspection as inspection
 import utils.token.token as token
 import utils.error.error as error
 
@@ -113,6 +114,29 @@ def select_note():
             return jsonify({"msg": "Note Not Found"}), 400
 
         return jsonify({"msg": "Select Note Successfully", "title": result[0][2], "content": result[0][3], "mood": result[0][4]}), 200
+
+    except Exception as e:
+        logging.error(f"Error occurred: {e}")
+        return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
+    
+@note_route.route('/results', methods=['POST'])
+def insert_inspection_result():
+    try:
+        data = request.json
+        print(data)
+        auth_header = request.headers.get('Authorization')
+        required_fields = ['user_id', 'emotionality', 'extraversion', 'egreeableness', 'eonesty', 'eonscientiousness', 'open']
+
+        fields, error_response, status_code = validate_request(data, required_fields, auth_header)
+        if error_response:
+            return error_response, status_code
+
+        result = inspection.insert_inspection_result(fields['user_id'], fields['emotionality'], fields['extraversion'], fields['egreeableness'], fields['eonesty'], fields['eonscientiousness'], fields['open'])
+
+        if result is None:
+            return jsonify({"msg": "Failed to insert inspection result"}), 400
+
+        return jsonify({"msg": "Insert inspection result Successfully"}), 200
 
     except Exception as e:
         logging.error(f"Error occurred: {e}")

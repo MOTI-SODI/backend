@@ -16,10 +16,10 @@ def handle_user_request(data, required_fields, user_action):
 def add_user():
     try:
         data = request.json
-        required_fields = ['email', 'name', 'password']
+        required_fields = ['email', 'name', 'password', 'birth_date', 'phone_address', 'gender', 'job']
 
         def action(fields):
-            result = user.add_user(fields['email'], fields['name'], fields['password'])
+            result = user.add_user(fields['email'], fields['name'], fields['password'], fields['birth_date'], fields['phone_address'], fields['gender'], fields['job'])
             if not result:
                 return jsonify({"msg": "User already exists"}), 400
             return jsonify({"msg": "User Added Successfully"}), 200
@@ -36,10 +36,10 @@ def login_user():
         required_fields = ['email', 'password']
 
         def action(fields):
-            access_token, refresh_token = user.login_user(fields['email'], fields['password'])
-            if not access_token or not refresh_token:
+            access_token, refresh_token, status = user.login_user(fields['email'], fields['password'])
+            if not access_token or not refresh_token or not status:
                 return jsonify({"msg": "User does not exist"}), 400
-            return jsonify({"msg": "User Login Successfully", 'Access_Token': access_token, "Refresh_Token": refresh_token}), 200
+            return jsonify({"msg": "User Login Successfully", 'Access_Token': access_token, "Refresh_Token": refresh_token, "Status": status}), 200
 
         return handle_user_request(data, required_fields, action)
 
@@ -56,7 +56,58 @@ def change_password():
             result = user.change_password(fields['email'], fields['current_password'], fields['new_password'], fields['confirm_password'])
             if not result:
                 return jsonify({"msg": "Invalid credentials"}), 400
-            return jsonify({"msg": "Password Changed Successfully"}), 200
+            return jsonify({"msg": "Change to Password Successfully"}), 200
+
+        return handle_user_request(data, required_fields, action)
+
+    except Exception as e:
+        return error.handle_error(e)
+
+@user_route.route('/name', methods=['POST'])
+def change_name():
+    try:
+        data = request.json
+        required_fields = ['email', 'password', 'name']
+
+        def action(fields):
+            result = user.change_name(fields['email'], fields['password'], fields['name'])
+            if not result:
+                return jsonify({"msg": "Invalid credentials"}), 400
+            return jsonify({"msg": "Change to Name Successfully"}), 200
+
+        return handle_user_request(data, required_fields, action)
+
+    except Exception as e:
+        return error.handle_error(e)
+    
+@user_route.route('/gender', methods=['POST'])
+def change_gender():
+    try:
+        data = request.json
+        required_fields = ['email', 'password', 'gender']
+
+        def action(fields):
+            result = user.change_gender(fields['email'], fields['password'], fields['gender'])
+            if not result:
+                return jsonify({"msg": "Invalid credentials"}), 400
+            return jsonify({"msg": "Change to Gender Successfully"}), 200
+
+        return handle_user_request(data, required_fields, action)
+
+    except Exception as e:
+        return error.handle_error(e)
+
+@user_route.route('/job', methods=['POST'])
+def change_job():
+    try:
+        data = request.json
+        required_fields = ['email', 'password', 'job']
+
+        def action(fields):
+            result = user.change_job(fields['email'], fields['password'], fields['job'])
+            if not result:
+                return jsonify({"msg": "Invalid credentials"}), 400
+            return jsonify({"msg": "Change to Job Successfully"}), 200
 
         return handle_user_request(data, required_fields, action)
 

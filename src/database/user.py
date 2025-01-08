@@ -52,8 +52,8 @@ def setting_db(message, params=False, fetch=False):
         conn.close()
 
 
-def add_user(email, name, password):
-    create_message = f"INSERT INTO {MYSQL_DBNAME}.users (email, name, password) VALUES (%s, %s, %s)"
+def add_user(email, name, password, birth_date, phone_address, gender, job,):
+    create_message = f"INSERT INTO {MYSQL_DBNAME}.users (email, name, password, birth_date, phone_address, gender, job) VALUES (%s, %s, %s, %s, %s, %s, %s)"
     select_message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
     
     existing_user = setting_db(select_message, params=(email,), fetch=True)
@@ -61,7 +61,7 @@ def add_user(email, name, password):
         return False
     
     password = hash_password(password)
-    setting_db(create_message, params=(email, name, password))
+    setting_db(create_message, params=(email, name, password, birth_date, phone_address, gender, job))
     
     return True
 
@@ -72,6 +72,7 @@ def login_user(email, password):
 
     if result:
         stored_password = result[0][3]
+        status = result[0][8]
         stored_password_bytes = base64.b64decode(stored_password)
         salt = stored_password_bytes[:16]
         hashed_password = stored_password_bytes[16:].decode('utf-8')
@@ -81,7 +82,7 @@ def login_user(email, password):
         if hashed_password == hashed_input_password:
             access_token, refresh_token = token.create_tokens(email)
             if access_token and refresh_token:
-                return access_token, refresh_token
+                return access_token, refresh_token, status
             else:
                 return False, False
         else:
@@ -116,6 +117,78 @@ def change_password(email, current_password, new_password, confirm_password):
     else:
         return False
 
+def change_name(email, password, name):
+    message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
+    result = setting_db(message, params=(email,), fetch=True)
+
+    if result:
+        stored_password = result[0][3]
+
+        stored_password_bytes = base64.b64decode(stored_password)
+        salt = stored_password_bytes[:16]
+        hashed_password = stored_password_bytes[16:].decode('utf-8')
+
+        hashed_input_password = hashlib.sha512(salt + password.encode('utf-8')).hexdigest()
+
+        if hashed_password == hashed_input_password:
+            update_message = f"UPDATE {MYSQL_DBNAME}.users SET name = %s WHERE email = %s"
+            setting_db(update_message, params=(name, email))
+
+            return True
+        else:
+            return False
+    else:
+        return False
+
+def change_gender(email, password, gender):
+    if gender not in ("F", "M"):
+        return False
+
+    message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
+    result = setting_db(message, params=(email,), fetch=True)
+
+    if result:
+        stored_password = result[0][3]
+
+        stored_password_bytes = base64.b64decode(stored_password)
+        salt = stored_password_bytes[:16]
+        hashed_password = stored_password_bytes[16:].decode('utf-8')
+
+        hashed_input_password = hashlib.sha512(salt + password.encode('utf-8')).hexdigest()
+
+        if hashed_password == hashed_input_password:
+            update_message = f"UPDATE {MYSQL_DBNAME}.users SET gender = %s WHERE email = %s"
+            setting_db(update_message, params=(gender, email))
+
+            return True
+        else:
+            return False
+    else:
+        return False
+    
+def change_job(email, password, job):
+    message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE email = %s"
+    result = setting_db(message, params=(email,), fetch=True)
+
+    if result:
+        stored_password = result[0][3]
+
+        stored_password_bytes = base64.b64decode(stored_password)
+        salt = stored_password_bytes[:16]
+        hashed_password = stored_password_bytes[16:].decode('utf-8')
+
+        hashed_input_password = hashlib.sha512(salt + password.encode('utf-8')).hexdigest()
+
+        if hashed_password == hashed_input_password:
+            update_message = f"UPDATE {MYSQL_DBNAME}.users SET job = %s WHERE email = %s"
+            setting_db(update_message, params=(job, email))
+
+            return True
+        else:
+            return False
+    else:
+        return False
+    
 def select_user_email(user_id):
     message = f"SELECT * FROM {MYSQL_DBNAME}.users WHERE user_id = %s"
     result = setting_db(message, params=(user_id), fetch=True)

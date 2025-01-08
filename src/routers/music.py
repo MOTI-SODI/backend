@@ -37,14 +37,21 @@ def get_recommend():
     try:
         data = request.json
         auth_header = request.headers.get('Authorization')
-        required_fields = ['user_id', 'content']
+        required_fields = ['user_id', 'content', 'mood']
 
         fields, error_response, status_code = validate_request(data, required_fields, auth_header)
         if error_response:
             return error_response, status_code
         
+        # word = keyword.generate_keyword(fields['content'], fields['mood'])
         word = keyword.generate_keyword(fields['content'])
+        print(word)
         result = song.get_music(word)
+        print(result)
+
+        if result is None:
+            return jsonify({"msg": "Music Result is Required"})
+        
         return jsonify({'msg': "Recommend Music Successfully", "artist": result['artist'], "song_title": result['song_title'], "thumbnail": result['thumbnail'], "music_url": result['music_url']}), 200
 
     except Exception as e:
