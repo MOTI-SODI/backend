@@ -46,6 +46,24 @@ def login_user():
     except Exception as e:
         return error.handle_error(e)
 
+# @user_route.route('/me', methods=['POST'])
+# def select_user():
+#     try:
+#         data = request.json
+#         data = request.json
+#         required_fields = ['email']
+
+#         def action(fields):
+#             access_token, refresh_token = user.login_user(fields['email'], fields['password'])
+#             if not access_token or not refresh_token:
+#                 return jsonify({"msg": "User does not exist"}), 400
+#             return jsonify({"msg": "User Login Successfully", 'Access_Token': access_token, "Refresh_Token": refresh_token}), 200
+
+#         return handle_user_request(data, required_fields, action)
+
+#     except Exception as e:
+#         return error.handle_error(e)
+
 @user_route.route('/password', methods=['POST'])
 def change_password():
     try:

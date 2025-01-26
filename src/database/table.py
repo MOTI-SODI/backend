@@ -76,7 +76,7 @@ def create_table():
         password VARCHAR(255) NOT NULL,
         birth_date DATE NOT NULL,
         phone_address VARCHAR(255) NOT NULL,
-        gender ENUM('F','M') NOT NULL,
+        gender ENUM('F','M','O') NOT NULL,
         job VARCHAR(255) NOT NULL,
         status BOOLEAN
     );
